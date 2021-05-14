@@ -1,0 +1,74 @@
+BISMILAHI RAHMANI RAHIM
+ALAHOUMA SOLI ALA MOUHAMADI-N WA ALA ALI MOUHAMADI-N WA SALIM DA-IMA-N ABADA-N
+YA ILAHI TAWAKELNA ALA LA WALA AWLA WALA KOUWATA ILA BILA AL ALIYOU AL AZIM
+
+//Tocreate socket.on('evenement') just write onEvenement
+onTest(message) {
+    console.log('TEST EMIT' + message);
+}
+
+// sending to sender-client only
+socket.emit('message', "this is a test");
+
+// sending to all clients, include sender
+io.emit('message', "this is a test");
+
+// sending to all clients except sender
+socket.broadcast.emit('message', "this is a test");
+
+// sending to all clients in 'game' room(channel) except sender
+socket.broadcast.to('game').emit('message', 'nice game');
+
+// sending to all clients in 'game' room(channel), include sender
+io.in('game').emit('message', 'cool game');
+
+// sending to sender client, only if they are in 'game' room(channel)
+socket.to('game').emit('message', 'enjoy the game');
+
+// sending to all clients in namespace 'myNamespace', include sender
+io.of('myNamespace').emit('message', 'gg');
+
+// sending to individual socketid
+  socket.broadcast.to(socketid).emit('message', 'for your eyes only');
+
+// list socketid
+for (var socketid in io.sockets.sockets) {}
+ OR
+Object.keys(io.sockets.sockets).forEach((socketid) => {});
+
+
+///
+
+  var redirectUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + window.location.pathname + '?q=recu';
+                    document.location.href = redirectUrl;
+
+
+---------------------V2 : LES FONCTIONNALITES A AJOUTER-----------------
+
+//COLLECT QUOTIDIEN,  HEBDOMENDAIRE, MENSUELLE ...
+Faire des planifications de collects quotidien, journalière depuis l'application
+-comme cela le collecteur saura qu'il doit chaque x jour se rendre chez untel pour collecter les ordures
+-ce payement ce fait mensuellement ou par semaine
+
+
+//Reserver un collecteur pour un jour donner
+-Le collecter peut louer un collecter pour une date donner
+-Pour cela depuis l'application, il reserve le collecteur pour le jour en question et la date
+(depuis un calendrier, il choisit la date, l'heure, les informations sur ce que le collecteur aurra à faire..)
+-Nous recevons celà, analysons et si nous validons, nous desigons un collector qui se chargera de cette tâche
+-On fera un notif à la veille pour rapeler le collector et le jour j nous l'appelerons, pour nous assurer qu'il se rend chez le client
+
+
+
+
+
+-------------------
+1 user (searchCollector)
+2 collector (collector)
+3 collector (userneedyoucollector)
+4 collector (collectoracceptbookingresponse)
+5 user  & collector (booking)
+
+
+
+//mongoose.connect("mongodb://srv-captain--my-mongodb/mydatabase", { useMongoClient: true });

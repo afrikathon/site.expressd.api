@@ -1,0 +1,182 @@
+
+'use strict'
+
+const Logger = use('Logger');
+/**
+ * In this tableau we 'll add conneted collectors and when user send request
+ * we get the poisition of this collectors
+ * We calculate the distance
+ * Send to collector we are in X km from the notification to accept/decline
+ */
+var freeCollectorsObject = [];
+var freeCollectorsTable = [];
+var bookings = [];
+class CollectorController {
+    constructor({ socket, request }) {
+        this.socket = socket
+        this.request = request
+    }
+
+
+    /**
+     *
+     * @param data = {
+     *  username : username,
+     *  longitude : longitude,
+     *  latitude: latitude
+     * }
+     */
+    onSubscribe(data) {
+        console.log(data);
+        //verifier si le username à dejà un socket id, changer le socket id
+        freeCollectors[data.username] = this.socket.id;
+        //Notify in database, user connected time info
+    }
+
+
+    /**
+     *
+     * @param data = {
+     *  phone : phone,
+     *  longitude : longitude,
+     *  latitude: latitude
+     * }
+    //----1client---client(user)
+     * Before emit show the different booking information to user
+     * if he valid the booking we send searchCollector notif to the server
+     * socket.emit('searchCollector', {user_id:user_id, phone : phone,user_longitude : user_longitude, user_latitude: user_latitude})
+     */
+    onSearchCollector(data) { //1-server
+      console.log(data)
+        //parcourir la liste des collecteurs disponible et leur faire un push pour obtenir leur position
+        //Get free colletor position
+        var searchCollectorData = {
+            user_id: user_id,
+            phone: phone,
+            user_longitude: user_longitude,
+            user_latitude: user_latitude
+        };
+        //---save collect to table & change status id onecollector accept it
+        bookings[user_id] = {
+            status: 0
+        };
+        freeCollectorsTable.map((socketid, index) => {
+            this.socket.broadcast.to(socketid).emit('getcollectorposition', searchCollectorData); //2 ------server side
+            //Au niveau du client (collector)
+            /*
+              ---2client (collector)----//Calculer la durer entre les deux positions
+              si la distance est conforme au X km (5 pour le moment) faire :
+              socket.emit('sendcollectorposition',{collectorid : collector_id,  collector_latitude : collector_latitude, collector_user_longitude : collector_user_longitude, user_longitude : user_longitude, user_latitude: user_latitude, distance: distance})
+            */
+        });
+
+    }
+
+    //--2client (collector))-----client side socket.emit('sendcollectorposition',{collectorid : collector_id,  collector_latitude : collector_latitude, collector_longitude : collector_longitude, user_longitude : user_longitude, user_latitude: user_latitude, distance: distance})
+    onSendcollectorposition(data) { //2-server
+        var time = "30min"; //Calculer la durer entre les deux positions (la règle de trois de google maps si heure = xkm alors ykm = ?heure)
+        //chercher un bon algo pour l'estimation des prix des ordures
+        var amount = "1000francs"; //L'estimation du prix et envoyer au collecteur (1 km à 200 + 1 sac d'ordure à 800francs)
+        var collectData = {
+            amount: amount,
+            time: time,
+            collector_id: collector_id,
+            collector_latitude: collector_latitude,
+            collector_longitude: collector_longitude,
+            user_longitude: user_longitude,
+            user_latitude: user_latitude,
+            distance: distance
+        };
+        //send notif to collector for acceptance
+        this.socket.broadcast.to(socketid).emit('userneedyoucollector', collectData); //3----serverside send userneed you to client
+        //-----3-client (collector)side socket.on('userneedyoucollector',(data)=>{});
+        /*
+          show booking information and button accept/decline in the screen && send collectoracceptbookingresponse to server,
+          we emit collectoracceptbookingresponse notification to the servet
+          the first who accept we mark the collect like accepted
+          var bookingresponsedata = {
+            amount: amount,
+            time: time,
+            collector_id: collector_id,
+            collector_latitude: collector_latitude,
+            collector_longitude: collector_longitude,
+            user_longitude: user_longitude,
+            user_latitude: user_latitude,
+            distance: distance,
+            isaccept : true/false
+          }
+          socket.emit('collectoracceptbookingresponse', bookingresponsedata);// 4-client side (collector)
+        */
+    };
+
+    // onCollectoracceptbookingresponse(data) { //-------4 server
+    //     if (bookings[user_id] != 0) {
+    //         //the collecting is not accepted yet
+    //         if (data.accept == true) {
+    //             //collector accept
+    //             //send to user collector position, booking information permit to follow collector in real time
+    //             bookings[user_id] = {
+    //                 status: 1
+    //             };
+    //             var bookingedata = {
+    //                 amount: amount,
+    //                 time: time,
+    //                 collector_id: collector_id,
+    //                 collector_latitude: collector_latitude,
+    //                 collector_longitude: collector_longitude,
+    //                 user_longitude: user_longitude,
+    //                 user_latitude: user_latitude,
+    //                 distance: distance,
+    //                 isaccept: true / false
+    //             };
+    //             this.socket.broadcast.to(socketid).emit('booking', bookingedata); //5----serverside send book information && follow in real time
+    //             /**
+    //              * //5---- client(user) side, socket.on('booking', (data)=>{});
+    //              * we show in the map user postion on collection side to permit follow in real time
+    //              * we permit to user follow colletcor in real time
+    //              */
+    //         } else {
+    //             //4--- client () : collector didn't accept (delete the booking on user screen && free him)
+    //         }
+    //     } else {
+    //         //the collect is already accepted by another collector
+    //         var bookAlreadyAcceptedData = {
+    //             message = "Booking accept by another collector"
+    //         }
+    //         this.socket.broadcast.to(socketid).emit('bookingalreadyaccepted', bookAlreadyAcceptedData); //-----6-server side: bookingalreadyaccepted
+    //         /**
+    //          *
+    //          */
+    //     }
+
+    // };
+
+    onClose(data) {
+        // same as: socket.on('close')
+        console.log("CLOSE --------- CLOSE");
+        //enlever son  ID du table
+        freeCollectorsObject[data.username] = this.socket.id;
+        let collectorsockid = freeCollectorsTable[data.username];
+        freeCollectorsTable.map((value, index) => {
+            if (value == collectorsockid) {
+                freeCollectorsTable[index] = null //search method to delete data from table
+            }
+        });
+        this.socket.broadcastToAll('close', message)
+    }
+
+    onError(error) {
+        // same as: socket.on('error')
+        Logger.error(error)
+    }
+
+
+    onMessage(message) {
+        console.log(message)
+        this.socket.broadcastToAll('message', message);
+    };
+
+    /*onMessage () {// same as: socket.on('message')*/
+}
+
+module.exports = CollectorController

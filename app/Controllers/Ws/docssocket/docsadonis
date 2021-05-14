@@ -1,0 +1,55 @@
+Socket Methods
+Below is the list of methods you can call from the socket instance.
+
+
+//Listen for an event.
+on(event, callback)
+socket.on('greet', function (greeting) {
+})
+
+//Listen for an event only once.
+once(event, callback)
+socket.once('greet', function (greeting) {
+})
+
+
+//Emit an event.
+emit(event, …​properties)
+
+
+//Emit a message to everyone including the originating socket itself.
+socket.emit('greet', 'Hello world')
+
+//toEveryone()
+socket.toEveryone().emit('greet', 'Hello world')
+
+
+//Emit a message to the originating socket only.
+toMe()
+
+
+//Emit a message to everyone except the originating socket.
+socket.toMe().emit('greet', 'Hello world')
+exceptMe()
+
+
+//Emit a message to specific socket ids only.
+socket.exceptMe().emit('user:join', 'User joined!')
+
+
+//Emit a message a given room.
+to(ids)
+socket.to([]).emit('greet', 'Hello world')
+inRoom(room)
+
+
+//Emit a message to multiple rooms. inRoom(room)
+//inRoom
+socket.inRoom('lobby').emit('greet', 'Hello world')
+//inRooms(rooms)
+socket.inRoom(['lobby', 'watercooler']).emit('greet', 'Hello world')
+
+
+
+//Disconnect a socket from receiving/sending messages.
+socket.disconnect()

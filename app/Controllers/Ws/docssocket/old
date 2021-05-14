@@ -1,0 +1,36 @@
+     if(!username || username  === ''  || username  == null || username.length == 0 || email  == ''  || email  == null || email.length  == 0 || password == '' || password == null || password.length == 0 ) {
+        return response.status(401).json({
+                error : true,
+                message : "Data invalid",
+        });
+
+      } else if (username.trim()  === '' || email.trim()  === '' || password.trim()=== ''){
+        return response.status(401).json({
+          error : true,
+          message : "Data invalid",
+        });
+    }
+
+
+
+
+
+/////////CAPTAIN DEFINTION ----////////////
+
+
+
+ {
+  "schemaVersion" :2 ,
+  "dockerfileLines" :[
+                        "FROM node:12.16.1",
+                        "RUN mkdir -p /usr/src/app",
+                        "WORKDIR /usr/src/app",
+                        "COPY ./src/package.json /usr/src/app/",
+                        "RUN npm install && npm cache clean --force",
+                        "COPY ./src /usr/src/app",
+                        "ENV NODE_ENV production",
+                        "ENV PORT 80",
+                        "EXPOSE 80",
+                        "CMD [ \"npm\", \"start\" ]"
+                    ]
+ }

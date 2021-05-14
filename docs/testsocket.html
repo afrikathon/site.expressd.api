@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+MON SITE SUPER
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
+<script src="https://unpkg.com/adonis-websocket-client/dist/ws.min.js"></script>
+
+<script>
+var io = null;
+
+io = ws('ws://localhost:3333/adonis-ws', {});
+console.log(io)
+const client = io.channel('collector')
+console.log(client)
+client.connect(function (error, connected) {
+  if (error) {
+    // do something
+    return
+  }
+  // all good
+  //client.emit('message', 'Hello world')
+})
+// const collector = io.subscribe('collector');
+
+
+</script>
+</body>
+</html>
